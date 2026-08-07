@@ -1,2 +1,42 @@
-# phantom-brush
-Track your hand movements via camera and let you draw on screen by moving your finger in the air (like an air-drawing canvas).
+# PhantomBrush ✨
+
+A real-time hand-tracking drawing app. Paint in the air using your camera and your fingertip.
+
+![demo](assets/demo.gif)
+
+## How It Works
+PhantomBrush uses computer vision to track your hand in real time via camera. 
+Moving your index finger draws on screen, like an invisible brush leaving a glowing trail.
+
+## Tech Stack
+- Python
+- OpenCV
+- MediaPipe (hand landmark detection)
+
+## Features
+- Real-time hand and fingertip tracking
+- Draw by moving your index finger
+- [Add more as you build: color switching, clear canvas gesture, trail effects, etc.]
+
+## Installation
+\`\`\`bash
+git clone https://github.com/yourusername/phantom-brush.git
+cd phantom-brush
+pip install -r requirements.txt
+python main.py
+\`\`\`
+
+## Usage
+- Raise your index finger to start drawing
+- [Note: Need to add gesture controls here]
+
+## What I Learned
+[Note Will fill this out later]
+
+## Future Improvements
+- [ ] Multiple colors / gesture-based color picker
+- [ ] Save drawings as images
+- [ ] Multi-hand support
+
+## License
+MIT

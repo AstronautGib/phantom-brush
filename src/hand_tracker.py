@@ -1,35 +1,46 @@
 import cv2
 import mediapipe as mp
+import numpy as np
 
 class HandTracker:
-    def __init__(self, max_hands=1, detection_confidence=0.7, tracking_confidence=0.7):
-        self.mp_hands = mp.solutions.hands
-        self.hands = self.mp_hands.Hands(
-            static_image_mode=False,
-            max_num_hands=max_hands,
-            min_detection_confidence=detection_confidence,
-            min_tracking_confidence=tracking_confidence
+    def __init__(self, model_path="models/hand_landmarker.task", max_hands=1,
+                 detection_confidence=0.7, tracking_confidence=0.7):
+        BaseOptions = mp.tasks.BaseOptions
+        HandLandmarker = mp.tasks.vision.HandLandmarker
+        HandLandmarkerOptions = mp.tasks.vision.HandLandmarkerOptions
+        VisionRunningMode = mp.tasks.vision.RunningMode
+
+        options = HandLandmarkerOptions(
+            base_options=BaseOptions(model_asset_path=model_path),
+            running_mode=VisionRunningMode.VIDEO,
+            num_hands=max_hands,
+            min_hand_detection_confidence=detection_confidence,
+            min_tracking_confidence=tracking_confidence,
         )
-        self.mp_draw = mp.solutions.drawing_utils
+        self.landmarker = HandLandmarker.create_from_options(options)
+        self.results = None
+        self._frame_timestamp_ms = 0
 
     def find_hands(self, frame, draw=True):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        self.results = self.hands.process(rgb_frame)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
-        if self.results.multi_hand_landmarks and draw:
-            for hand_landmarks in self.results.multi_hand_landmarks:
-                self.mp_draw.draw_landmarks(
-                    frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
-                )
+        self._frame_timestamp_ms += 33  # approx timestamp step, ~30fps
+        self.results = self.landmarker.detect_for_video(mp_image, self._frame_timestamp_ms)
+
+        if self.results.hand_landmarks and draw:
+            h, w, _ = frame.shape
+            for hand_landmarks in self.results.hand_landmarks:
+                for lm in hand_landmarks:
+                    x, y = int(lm.x * w), int(lm.y * h)
+                    cv2.circle(frame, (x, y), 4, (0, 255, 0), cv2.FILLED)
         return frame
 
     def get_index_finger_tip(self, frame):
         """Returns (x, y) pixel coordinates of the index fingertip, or None if no hand detected."""
-        if self.results.multi_hand_landmarks:
-            hand_landmarks = self.results.multi_hand_landmarks[0]
+        if self.results and self.results.hand_landmarks:
+            hand_landmarks = self.results.hand_landmarks[0]
             h, w, _ = frame.shape
-            # Landmark 8 = index finger tip
-            tip = hand_landmarks.landmark[8]
-            x, y = int(tip.x * w), int(tip.y * h)
-            return (x, y)
+            tip = hand_landmarks[8]  # index finger tip
+            return (int(tip.x * w), int(tip.y * h))
         return None

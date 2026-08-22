@@ -25,6 +25,8 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    if cv2.getWindowProperty("PhantomBrush - Hand Tracking", cv2.WND_PROP_VISIBLE) < 1:
+        break
 
 cap.release()
 cv2.destroyAllWindows()

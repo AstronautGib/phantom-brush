@@ -3,7 +3,8 @@
 A real-time hand-tracking drawing app. Paint in the air using your camera and your fingertip.
 
 ## How It Works
-PhantomBrush uses computer vision to track your hand in real time via web cam. 
+PhantomBrush uses computer vision to track your hand in real time via web cam.
+
 Raise your index finger to draw; raise your index and middle fingers together to lift the "pen" and move without drawing. Strokes render onto a persistent canvas layered over the live camera feed.
 
 ## Tech Stack
@@ -23,9 +24,13 @@ Raise your index finger to draw; raise your index and middle fingers together to
 
 ## Installation
 git clone https://github.com/AstronautGib/phantom-brush.git
+
 cd phantom-brush
+
 python -m venv venv
+
 venv\Scripts\activate #Windows
+
 pip install -r requirements.txt
 
 (Download the latest model of mediapipe and place it in models folder: https://developers.google.com/edge/mediapipe/solutions/vision/hand_landmarker)

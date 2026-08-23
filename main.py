@@ -27,12 +27,26 @@ while True:
     frame = tracker.find_hands(frame, draw=False)
 
     fingertip = tracker.get_index_finger_tip(frame)
-    canvas.draw(fingertip)
+    fingers = tracker.get_fingers_up(frame)
+
+    if fingertip and fingers:
+        index_up = fingers[1]
+        middle_up = fingers[2]
+
+        if index_up and not middle_up:
+            canvas.draw(fingertip)       # pen down
+        elif index_up and middle_up:
+            canvas.draw(None)            # pen up (lift, don't connect)
+        # if neither finger condition matches, just don't call draw at all,
+        # so prev_point stays as-is (handles brief detection blips)
+    else:
+        canvas.draw(None)  # no hand detected, lift pen
 
     output = canvas.overlay(frame)
 
     if fingertip:
-        cv2.circle(output, fingertip, 10, (255, 0, 255), 2)
+        ring_color = (0,255,0) if (fingers and fingers[1] and not fingers[2]) else (0,0,255)
+        cv2.circle(output, fingertip, 10, ring_color, 2)
 
     cv2.imshow("PhantomBrush - Hand Tracking", output)
 

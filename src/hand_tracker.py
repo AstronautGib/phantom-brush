@@ -44,3 +44,23 @@ class HandTracker:
             tip = hand_landmarks[8]  # index finger tip
             return (int(tip.x * w), int(tip.y * h))
         return None
+
+    # Pen up/Pen down detection based on finger states
+    def get_fingers_up(self, frame):
+        """Returns a list of booleans [thumb, index, middle, ring, pinky] — True if extended."""
+        if not (self.results and self.results.hand_landmarks):
+            return None
+
+        hand_landmarks = self.results.hand_landmarks[0]
+        fingers = []
+
+        # Thumb: compare x-coords (since thumb moves sideways, not up/down)
+        fingers.append(hand_landmarks[4].x < hand_landmarks[3].x)
+
+        # Other four fingers: tip above pip joint means finger is up
+        tip_ids = [8, 12, 16, 20]
+        pip_ids = [6, 10, 14, 18]
+        for tip, pip in zip(tip_ids, pip_ids):
+            fingers.append(hand_landmarks[tip].y < hand_landmarks[pip].y)
+
+        return fingers
